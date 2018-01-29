@@ -64,7 +64,7 @@ public class SaveExcelTool {
     {
         Row row=sheet.getRow(0);
         for (Map.Entry<String,ArrayList<String>> map:mapItem.entrySet()) {
-            if(strExcept !=null)
+            if(strExcept !=null && !strExcept.equals(""))
              if(strExcept.equals(map.getKey()))
                 continue;
             row.createCell(startCell++).setCellValue(preffix+map.getKey());

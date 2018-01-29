@@ -106,9 +106,43 @@ public class ExportYYRelatedTable_analysis extends RuiShiKeYan implements IruiSh
              e.printStackTrace();
          }
     }
+    private  JSONObject  getGroupFlag(String strGroup,String  strSCZKJLTime,String strShouZhenTime ,String strLastTime,int taDay)
+    {
+        JSONObject jsonObject = new JSONObject();
+        try
+        {
+            int last_ShouZhen=Integer.valueOf(DateFormat.getDays(strLastTime,strShouZhenTime)).intValue();
+
+            if (strGroup.equals("未生育组") || strGroup.equals("男性") || strGroup.equals("女性无生育实体") || strGroup.equals("未提及")) {
+                jsonObject.put("group","1");
+                if (last_ShouZhen >= taDay)
+                    jsonObject.put("flag","OK");
+            }
+            else {
+                if (strSCZKJLTime.compareTo(strShouZhenTime) <=0)
+                {
+                    jsonObject.put("group","2");
+                    if(last_ShouZhen >= taDay)
+                        jsonObject.put("flag","OK");
+                }else
+                {
+                    jsonObject.put("group","3");
+                    int last_ShengC=Integer.valueOf(DateFormat.getDays(strLastTime,strSCZKJLTime)).intValue();
+                    if(last_ShengC >= taDay)
+                        jsonObject.put("flag","OK");;
+                }
+            }
+            return  jsonObject;
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+            return null;
+        }
+    }
     private void  writeToExcel(MongoDatabase mdb,Map<String,JSONObject> mapPIDInfo,String yyName,int ta)
     {
-        String title="患者（PID）,医院,性别,生产状况分组,地域,首诊时间天,首诊年龄,目标药物是否使用";
+        String title="患者（PID）,医院,性别,生产状况分组,生产状况RID,生产状况RID记录时间天,生产状况RID记录时间天减去首诊时间天," +
+                "最晚记录时间天,地域,首诊时间天,首诊年龄,目标药物是否使用";
 
         SaveExcelTool saveExcelTool= new SaveExcelTool();
         SXSSFSheet sheet=saveExcelTool.getSheet("");
@@ -118,30 +152,58 @@ public class ExportYYRelatedTable_analysis extends RuiShiKeYan implements IruiSh
         for(Map.Entry<String,JSONObject> mapPid:mapPIDInfo.entrySet())
          {
              JSONObject jsPidinfo= mapPid.getValue();
+             String strSCZKJLTime=getJSonValue(jsPidinfo,"生产状况RID记录时间天");
+             String strShouZhenTime=getJSonValue(jsPidinfo,"诊断时间天");
+             String strLastTime=getJSonValue(jsPidinfo,"最晚记录时间天");
+             String strMinusTime="";//生产状况RID记录时间天减去首诊时间天
+             if(!strSCZKJLTime.equals("")) {
+                 strMinusTime=DateFormat.getDays(strSCZKJLTime,strShouZhenTime);
+             }
+             JSONObject jsGroupFlag=getGroupFlag(getJSonValue(jsPidinfo,"生产状况分组"),strSCZKJLTime,strShouZhenTime,strLastTime,ta*360);
              if(ta !=0)
              {
-                 int bcDay=Integer.valueOf(getJSonValue(jsPidinfo,"病程天")).intValue();
-                 if(bcDay<ta*360)
+                 if(!getJSonValue(jsGroupFlag,"flag").equals("OK"))
                      continue;
+             }//生产状况RID
+             System.out.println("用药相关性分析表-分析2:"+yyName+":"+rowNum);
+
+             String strStartTime;
+             String strEndTime="";
+             String strGroup=getJSonValue(jsGroupFlag,"group");
+             if(strGroup.equals("1") ||strGroup.equals("2")) {
+                 strStartTime=strShouZhenTime;
+                 if(ta !=0) {
+                     strEndTime = DateFormat.getNextDay(strShouZhenTime, ta * 360);
+                 }
+             }else
+             {
+                 strStartTime=strSCZKJLTime;
+                 if(ta != 0) {
+                     strEndTime = DateFormat.getNextDay(strSCZKJLTime, ta * 360);
+                 }
              }
-             System.out.println("用药相关性分析表:"+yyName+":"+rowNum);
-             String strGCTime=DateFormat.getNextDay(getJSonValue(jsPidinfo,"诊断时间天"),ta*360);
              cellNum=0;
              Row row= sheet.createRow(rowNum++);
              row.createCell(cellNum++).setCellValue(mapPid.getKey());
              row.createCell(cellNum++).setCellValue(getJSonValue(jsPidinfo,"医院"));
              row.createCell(cellNum++).setCellValue(getJSonValue(jsPidinfo,"性别"));
              row.createCell(cellNum++).setCellValue(getJSonValue(jsPidinfo,"生产状况分组"));
+             row.createCell(cellNum++).setCellValue(getJSonValue(jsPidinfo,"生产状况RID"));
+
+             row.createCell(cellNum++).setCellValue(getJSonValue(jsPidinfo,"生产状况RID记录时间天"));
+
+             row.createCell(cellNum++).setCellValue(strMinusTime);
+             row.createCell(cellNum++).setCellValue(getJSonValue(jsPidinfo,"最晚记录时间天"));
              row.createCell(cellNum++).setCellValue(getJSonValue(jsPidinfo,"地域"));
              row.createCell(cellNum++).setCellValue(getJSonValue(jsPidinfo,"诊断时间天"));
              row.createCell(cellNum++).setCellValue(getJSonValue(jsPidinfo,"诊断时间年减去出生年"));
-             row.createCell(cellNum++).setCellValue(getYYStatus(mapPid.getKey(),yyName,strGCTime));
-             fillLeftCellValue(row,cellNum,mapPid.getKey(),strGCTime,yyName);
+             row.createCell(cellNum++).setCellValue(getYYStatus(mapPid.getKey(),yyName,strStartTime,strEndTime));
+             fillLeftCellValue(row,cellNum,mapPid.getKey(),strStartTime,strEndTime,yyName);
          }
-         saveExcelTool.saveExcel("/交付/用药相关性分析表-"+yyName+"-"+ta+".xlsx");
+         saveExcelTool.saveExcel("/交付/用药相关性分析表-分析2-"+yyName+"-"+ta+".xlsx");
     }
 
-    private int getYYStatus(String strPid,String yyName,String gcTime)
+    private int getYYStatus(String strPid,String yyName,String strStartTime,String strEndTime)
     {
         ArrayList<String> arrayList=mapLeiJiSubFenZu.get(yyName);
         if(arrayList ==null)
@@ -151,18 +213,19 @@ public class ExportYYRelatedTable_analysis extends RuiShiKeYan implements IruiSh
             Document document=mapYYOne.get(key);
             if(document== null)
                 continue;
-            if(get10JSonValue(document,"firstTime").compareTo(gcTime) <=0)
+            String strFirstTime=get10JSonValue(document,"firstTime");
+            if((strFirstTime.compareTo(strEndTime) <=0||strEndTime.equals("")) &&(strStartTime.equals("")||strFirstTime.compareTo(strStartTime) >=0))
                 return 1;
         }
         return 0;
     }
-    private void fillLeftCellValue(Row row,int cellNum,String strPid,String strgcTime,String yyName)
+    private void fillLeftCellValue(Row row,int cellNum,String strPid,String strStartTime,String strEndTime,String yyName)
     {
         for (Map.Entry<String,ArrayList<String>> map:mapLeiJiSubFenZu.entrySet())
         {
             if(yyName.equals(map.getKey()))
                 continue;
-            JSONObject dd= getSystemAndSubDay(strPid,map.getValue(),strgcTime,map.getKey());
+            JSONObject dd= getSystemAndSubDay(strPid,map.getValue(),strStartTime,strEndTime,map.getKey());
             int result=1;
             if(getJSonValue(dd,"firstTime").equals("N")) {
                 result=0;
@@ -177,13 +240,12 @@ public class ExportYYRelatedTable_analysis extends RuiShiKeYan implements IruiSh
      *@return 返回Jsonobject的结果
      *@param strPid   pid的值
      *@param arrayList arrayList
-     *@param strLCShengYanTime
+     *@param strEndTime
      *@param strItem  子项的值
      */
-    public  JSONObject getSystemAndSubDay(String strPid,ArrayList<String> arrayList,String strLCShengYanTime,String strItem)
+    public  JSONObject getSystemAndSubDay(String strPid,ArrayList<String> arrayList,String strStartTime,String strEndTime,String strItem)
     {
         String strFirstTime="N";
-        String strLastTime="0";
         String strTempTime;
         JSONObject jsonObject = new JSONObject();
 
@@ -192,9 +254,8 @@ public class ExportYYRelatedTable_analysis extends RuiShiKeYan implements IruiSh
             if(strItem.equals("肾炎")) {
                 if (mapHYRPG.containsKey(strSrouce)) {
                     strTempTime=get10JSonValue(mapHYRPG.get(strSrouce),"化验时间");
-                    if (strFirstTime.compareTo(strTempTime) > 0 && strTempTime.compareTo(strLCShengYanTime) <= 0) {
+                    if (getCompareResult(strTempTime,strFirstTime,strStartTime,strEndTime)) {
                         strFirstTime=strTempTime;
-                        strLastTime=strTempTime;
                     }
                 }
             }
@@ -202,9 +263,7 @@ public class ExportYYRelatedTable_analysis extends RuiShiKeYan implements IruiSh
             {
                 if (mapHY.containsKey(strSrouce)) {
                     strTempTime=get10JSonValue(mapHY.get(strSrouce),"firstTime");
-                    if(get10JSonValue(mapHY.get(strSrouce),"lastTime").compareTo(strLastTime) >0)
-                        strLastTime=get10JSonValue(mapHY.get(strSrouce),"lastTime");
-                    if (strFirstTime.compareTo(strTempTime) > 0 && strTempTime.compareTo(strLCShengYanTime) <= 0) {
+                    if (getCompareResult(strTempTime,strFirstTime,strStartTime,strEndTime)) {
                         strFirstTime = strTempTime;
                     }
                 }
@@ -212,43 +271,41 @@ public class ExportYYRelatedTable_analysis extends RuiShiKeYan implements IruiSh
 
             if (mapZZ.containsKey(strSrouce)) {
                 strTempTime=get10JSonValue(mapZZ.get(strSrouce),"firstTime");
-                if(get10JSonValue(mapZZ.get(strSrouce),"lastTime").compareTo(strLastTime) >0)
-                    strLastTime=get10JSonValue(mapZZ.get(strSrouce),"lastTime");
-                if (strFirstTime.compareTo(strTempTime) > 0 && strTempTime.compareTo(strLCShengYanTime) <= 0) {
+                if (getCompareResult(strTempTime,strFirstTime,strStartTime,strEndTime)) {
                     strFirstTime = strTempTime;
                 }
             }
 
             if (mapTZ.containsKey(strSrouce)) {
                 strTempTime=get10JSonValue(mapTZ.get(strSrouce),"firstTime");
-                if(get10JSonValue(mapTZ.get(strSrouce),"lastTime").compareTo(strLastTime) >0)
-                    strLastTime=get10JSonValue(mapTZ.get(strSrouce),"lastTime");
-                if (strFirstTime.compareTo(strTempTime) > 0 && strTempTime.compareTo(strLCShengYanTime) <= 0) {
+                if (getCompareResult(strTempTime,strFirstTime,strStartTime,strEndTime)) {
                     strFirstTime = strTempTime;
                 }
             }
             if (mapZD.containsKey(strSrouce)) {
                 strTempTime=get10JSonValue(mapZD.get(strSrouce),"firstTime");
-                if(get10JSonValue(mapZD.get(strSrouce),"lastTime").compareTo(strLastTime) >0)
-                    strLastTime=get10JSonValue(mapZD.get(strSrouce),"lastTime");
-                if (strFirstTime.compareTo(strTempTime) > 0 && strTempTime.compareTo(strLCShengYanTime) <= 0) {
+                if (getCompareResult(strTempTime,strFirstTime,strStartTime,strEndTime)) {
                     strFirstTime = strTempTime;
                 }
             }
             if (mapYY.containsKey(strSrouce)) {
                 strTempTime=get10JSonValue(mapYY.get(strSrouce),"firstTime");
-                if(get10JSonValue(mapYY.get(strSrouce),"lastTime").compareTo(strLastTime) >0)
-                    strLastTime=get10JSonValue(mapYY.get(strSrouce),"lastTime");
-                if (strFirstTime.compareTo(strTempTime) > 0 && strTempTime.compareTo(strLCShengYanTime) <= 0) {
+//                if(get10JSonValue(mapYY.get(strSrouce),"lastTime").compareTo(strLastTime) >0)
+//                    strLastTime=get10JSonValue(mapYY.get(strSrouce),"lastTime");
+                if (getCompareResult(strTempTime,strFirstTime,strStartTime,strEndTime)) {
                     strFirstTime = strTempTime;
                 }
             }
 
         }
         jsonObject.put("firstTime",strFirstTime);
-        jsonObject.put("lastTime",strLastTime);
+//        jsonObject.put("lastTime",strLastTime);
         return jsonObject;
     }
 
-
+    private boolean getCompareResult(String tempTime,String firstTime,String startTime,String endTime)
+    {
+        return  firstTime.compareTo(tempTime) > 0 && (endTime.equals("") ||tempTime.compareTo(endTime) <= 0) &&
+                (startTime.equals("") ||tempTime.compareTo(startTime) >=0);
+    }
 }

@@ -21,12 +21,11 @@ public class TestSomething {
        JSONObject obj= JSON.parseObject(filestr);
        System.out.print(obj.getString("hello"));
 
+       String aa="";
 
 
-       int aa=100;
 
-       aa=(int)(0.05*aa);
-       System.out.print(aa);
+       System.out.print("4018".compareTo(aa));
     }
 
 
