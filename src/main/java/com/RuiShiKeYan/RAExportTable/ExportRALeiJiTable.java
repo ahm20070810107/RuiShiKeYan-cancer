@@ -95,7 +95,7 @@ public class ExportRALeiJiTable extends RuiShiKeYan  implements IruiShiKeYan{
             JSONObject jsonBasic=mappid.getValue();
             String strShouZhenTime=jsonBasic.getString("诊断时间天");
             String strSYRIDTime=getJSonValue(jsonBasic,"生产状况RID记录时间天");
-            if(strSYRIDTime.equals("") ||strSYRIDTime.compareTo(strShouZhenTime)<=0 )
+            if(strSYRIDTime.equals("") ||strSYRIDTime.compareTo(strShouZhenTime)<= 0 )
             {
                 strSYRIDTime="";
             }
@@ -109,7 +109,7 @@ public class ExportRALeiJiTable extends RuiShiKeYan  implements IruiShiKeYan{
                 Row row = sheet.createRow(Rownum++);
                 int cell = 0;
                 cell = fillPublicCell(mappid.getKey(), row, jsonBasic, cell);
-                row.createCell(cell++).setCellValue(strSYRIDTime);
+                row.createCell(cell++).setCellValue(getJSonValue(jsonBasic,"生产状况RID记录时间天"));
                 row.createCell(cell++).setCellValue(mapTable.getKey());
                 row.createCell(cell++).setCellValue(mapSubAndSysMapping.get(mapTable.getKey()));
                 row.createCell(cell++).setCellValue(getJSonValue(jsonObject, "firstTime"));
