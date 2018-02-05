@@ -5,6 +5,7 @@ import com.yiyihealth.data.DaX.reader.DSExcelReader2;
 import test.java.task_SLE_LangChuang.BaseInfo_Title_ListValue_DBCondition;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,6 +28,31 @@ public class ReadExcelToMap  {
         while((document=excelReader.nextDocument()) != null) {
             if(document.getString(KeyName)!=null && !document.getString(KeyName).equals(""))
                 mapResult.put(document.getString(KeyName),"0");
+        }
+    }
+    public static  void readFromExcelToMap(Map<String,JSONObject> mapResult, String fileName, String KeyName,String storeKey1, String ... storeKeyn) throws Exception
+    {
+        if(storeKey1.equals(""))
+            return;
+        JSONObject config = new JSONObject();
+        config.put("filename", fileName);
+        config.put("source_type", "excel");
+
+        Set<String> setKeys= new HashSet<String>();
+        setKeys.add(storeKey1);
+        for(String str : storeKeyn)
+            setKeys.add(str);
+
+        DSExcelReader2 excelReader = new DSExcelReader2(config);
+        while((document=excelReader.nextDocument()) != null) {
+
+            if (document.getString(KeyName) != null && !document.getString(KeyName).equals("")) {
+                JSONObject jsonObject = new JSONObject();
+                for(String skeys: setKeys) {
+                    jsonObject.put(skeys,document.getString(skeys));
+                }
+                mapResult.put(document.getString(KeyName), jsonObject);
+            }
         }
     }
     public static  void readFromExcelToMap(Set<String> mapResult, String fileName, String KeyName) throws Exception

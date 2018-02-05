@@ -46,7 +46,7 @@ public class ExportLJ_5Tables {
         String strZDCondition="{'诊断状态':'是','标准诊断名':{$exists:true,$ne:''},"+BaseInfo_Title_ListValue_DBCondition.ZD13SLE+"}";
         String strTZCondition="{"+BaseInfo_Title_ListValue_DBCondition.ZZTZ13SLE+",'$or':[{'体征':{$ne:''}},{'体征定性描述':{$ne:''}}]  }";
         String strALAConditon="{"+BaseInfo_Title_ListValue_DBCondition.HY13SLE+",'化验结果定性（新）':'阳性'}";//'化验结果定性（新）':'阳性'}";
-        String strADRConditon="{'用药时间':{$exists:true,$regex:/^.{10,}$/},'是否使用':'使用','通用名':{$exists:true,$ne:''},"+BaseInfo_Title_ListValue_DBCondition.ADR13+"}";
+        String strADRConditon="{'是否使用':'使用','通用名':{$exists:true,$ne:''},"+BaseInfo_Title_ListValue_DBCondition.ADR13+"}";//'用药时间':{$exists:true,$regex:/^.{10,}$/},
         exportZD(db,strZDCondition);
         exportZZ(db,strZZCondition);
         exportTZ(db,strTZCondition);

@@ -58,7 +58,7 @@ public class ExportSleTimeToDB  extends RuiShiKeYan implements IruiShiKeYan{
                 docuPid.put("Version",Version);
                 docuPid.put("PID",mappid.getKey());
                 docuPid.put("Sex",getSexMapping(getJSonValue(jsonObject,"性别")));
-                docuPid.put("AgeGroup",getAgeGroup(getJSonValue(jsonObject,"诊断时间年减去出生年")));
+                docuPid.put("RaYYAgeGroup",getAgeGroup(getJSonValue(jsonObject,"诊断时间年减去出生年")));
                 docuPid.put("SleTime",getJSonValue(jsonObject,"诊断时间天"));
                 docuPid.put("LnTime",getLangChuangShenYanTime.getLCShenYanTime(mappid.getKey()));
                 docuPid.put("BirthYear",getJSonValue(jsonObject,"出生年"));
