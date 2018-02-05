@@ -23,7 +23,7 @@ import java.util.Map;
  */
 
 //用药相关性分析表-d-Ta
-public class ExportYYRelatedTable_analysis extends RuiShiKeYan implements IruiShiKeYan {
+public class ExportYYRelatedTable_analysis2 extends RuiShiKeYan implements IruiShiKeYan {
 
     private int Ta=1;
     private String[] strYYGroup={"英夫利西单抗","益赛普","甲氨蝶呤","来氟米特"};
@@ -40,7 +40,7 @@ public class ExportYYRelatedTable_analysis extends RuiShiKeYan implements IruiSh
     {
         MongoDBHelper mongoDBHelper = new MongoDBHelper("HDP-live");
         MongoDatabase db= mongoDBHelper.getDb();
-        IruiShiKeYan iruiShiKeYan= new ExportYYRelatedTable_analysis();
+        IruiShiKeYan iruiShiKeYan= new ExportYYRelatedTable_analysis2();
         iruiShiKeYan.run(db);
         mongoDBHelper.closeMongoDb();
     }
