@@ -60,7 +60,7 @@ public class ExportFenZuYYStatus extends RuiShiKeYan implements IruiShiKeYan{
              getSubItemMap();
              SaveExcelTool saveExcelTool = new SaveExcelTool();
              SXSSFSheet sheet = saveExcelTool.getSheet("");
-             saveExcelTool.fillExcelTitle("PID,医院,性别,生产状况分组,地域,初发时间天,初发年龄,初发年龄分组,观察终点,用药子项,用药系统项,用药时间天,用药RID");
+             saveExcelTool.fillExcelTitle("PID,医院,性别,生产状况分组,地域,初发时间天,初发年龄,初发年龄分5组,观察终点,用药子项,用药系统项,用药时间天,用药RID");
              int rowNum=1;
              for(Map.Entry<String,JSONObject> mapPid:mapQueZhen.entrySet())
              {
