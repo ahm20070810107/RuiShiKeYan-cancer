@@ -39,11 +39,12 @@ public class ExportYYRelatedTable extends RuiShiKeYan implements IruiShiKeYan {
             YYRelatedTable yyRelatedTable= new YYRelatedTable();
             yyRelatedTable.getBasicInfo(mdb);
 //用药相关性分析表-d-Ta
-            IruiShiKeYan iruiShiKeYan= new ExportYYRelatedTable_analysis1();
-            iruiShiKeYan.run(mdb,yyRelatedTable);
-//用药相关性分析表-分析2-d-Ta
-            iruiShiKeYan= new ExportYYRelatedTable_analysis2();
-            iruiShiKeYan.run(mdb,yyRelatedTable);
+            IruiShiKeYan iruiShiKeYan;
+//            iruiShiKeYan= new ExportYYRelatedTable_analysis1();
+//            iruiShiKeYan.run(mdb,yyRelatedTable);
+////用药相关性分析表-分析2-d-Ta
+//            iruiShiKeYan= new ExportYYRelatedTable_analysis2();
+//            iruiShiKeYan.run(mdb,yyRelatedTable);
 //用药相关性分析表-分析3-d
             iruiShiKeYan= new ExportYYRelatedTable_analysis3();
             iruiShiKeYan.run(mdb,yyRelatedTable);

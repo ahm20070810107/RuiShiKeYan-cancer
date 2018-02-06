@@ -39,7 +39,7 @@ public class ExportYYRelatedTable_analysis3 extends RuiShiKeYan implements IruiS
     private    Map<String,Document> mapHY ;
     private    Map<String,Document> mapHYRPG;
     private    Map<String,JSONObject> mapShouZhen;
-    private    Map<String,JSONObject> mapPids;
+    private    Map<String,JSONObject> mapPids = new HashMap<String, JSONObject>();
 
     public void run(MongoDatabase mdb, Object[] args) {
         try {
@@ -108,6 +108,7 @@ public class ExportYYRelatedTable_analysis3 extends RuiShiKeYan implements IruiS
         int rowNum=1;
         for(Map.Entry<String,JSONObject> mapPid:mapPids.entrySet())
          {
+             System.out.println(yyName+":" +rowNum);
              JSONObject jsPidinfo= mapPid.getValue();
              JSONObject jsShouZhen= mapShouZhen.get(mapPid.getKey());
              String strEndTime=getJSonValue(jsPidinfo,"观察终点");

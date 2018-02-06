@@ -252,7 +252,7 @@ public class getHDPInfo {
         MongoCollection<Document> mc = mdb.getCollection("ASY");
         ArrayList<Document> aggregates = new ArrayList<Document>();
         aggregates.add(new Document("$match",Document.parse(BaseInfo_Title_ListValue_DBCondition.strTZConditon)));
-        aggregates.add(new Document("$project",Document.parse("{'体征组合':{'$concat':['$部位1','$体征','$体征定性描述','$体征定量描述','$体征定量单位']},'PID':'$PID','症状&体征时间':'$症状&体征时间','RID':'$RID','否定词':'$否定词'}")));
+        aggregates.add(new Document("$project",Document.parse("{'体征组合':{'$concat':['$部位1','$否定词','$体征','$体征定性描述','$体征定量描述','$体征定量单位']},'PID':'$PID','症状&体征时间':'$症状&体征时间','RID':'$RID'}")));
         aggregates.add(new Document("$match",Document.parse("{'体征组合':{$in:["+strTZList+"]}}")));
         aggregates.add(new Document("$sort",Document.parse("{'症状&体征时间':1}")));
         aggregates.add(new Document("$group",Document.parse("{'_id':{'PID':'$PID'}, 'result':{'$first':'$$ROOT'}}")));
