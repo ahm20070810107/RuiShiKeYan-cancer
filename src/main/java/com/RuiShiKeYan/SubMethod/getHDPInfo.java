@@ -24,7 +24,7 @@ public class getHDPInfo {
      * @return 10位时间格式
      */
 
-    public static   String getFirstLastRIDDay(MongoDatabase dbHDP, String PID, boolean flag)
+    public static  String getFirstLastRIDDay(MongoDatabase dbHDP, String PID, boolean flag)
     {
         String  sortFlag=flag?"-1":"1";
         MongoCollection<Document> mc = dbHDP.getCollection("ARB");

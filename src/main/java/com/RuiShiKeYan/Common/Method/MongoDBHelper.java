@@ -18,14 +18,14 @@ public class MongoDBHelper {
     public MongoDBHelper(String dbName)throws Exception
      {
          Dbname=dbName;
-         MongoClientURI uri = new MongoClientURI(LocalHostInfo.getUrl(dbName));
-         client = new MongoClient(uri);
-         //本地通过跳板机跳转
 
+         //本地通过跳板机跳转
          sshLocalForward = new SSHLocalForward(LocalHostInfo.getHosturl());
          if(LocalHostInfo.isLocation()) {
              sshLocalForward.connectSSH();
          }
+         MongoClientURI uri = new MongoClientURI(LocalHostInfo.getUrl(dbName));
+         client = new MongoClient(uri);
      }
     public MongoDBHelper(String dbName,String HostUrl)throws Exception
     {
