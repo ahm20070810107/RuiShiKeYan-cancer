@@ -9,7 +9,7 @@ import net.sourceforge.pinyin4j.format.exception.BadHanyuPinyinOutputFormatCombi
  * Created with IntelliJ IDEA User:huangming Date:2017/9/20 Time:下午4:52
  */
 public class JoinAlgorithm {
-
+       
 	private HanyuPinyinOutputFormat format = null;
 	static JoinAlgorithm joinAlgorithm;
 	private JoinAlgorithm() {
