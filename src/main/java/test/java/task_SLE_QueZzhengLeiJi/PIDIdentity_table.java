@@ -15,6 +15,7 @@ import test.java.task_SLE_LangChuang.BaseInfo_Title_ListValue_DBCondition;
 
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,7 +57,7 @@ public class PIDIdentity_table {
         SXSSFWorkbook sxssfWorkbook2 = new SXSSFWorkbook(2000);
         SXSSFSheet sheet2 = sxssfWorkbook2.createSheet();
         getTotalMap(mapTotal,mapADO,mapZhuYuan,mapADI,mapADR,mapALA,mapASY);
-        writeToExcel(mapTotal,sheet1,sheet2);
+        writeToExcel(dbp,mapTotal,sheet1,sheet2);
 
 
         FileOutputStream fileOutputStream1 = new FileOutputStream(LocalHostInfo.getPath()+"交付/PID验证列表.xlsx");
@@ -69,9 +70,9 @@ public class PIDIdentity_table {
         sxssfWorkbook2.close();
         fileOutputStream2.close();
     }
-    private static void writeToExcel( Map<String,Map<String,Object>> mapTotal ,SXSSFSheet sheet1,SXSSFSheet sheet2)
+    private static void writeToExcel(MongoDatabase dbp, Map<String,Map<String,Object>> mapTotal ,SXSSFSheet sheet1,SXSSFSheet sheet2)
     {
-        fillExcelTitle(sheet1,"医院,科室,患者（PID）,住院信息表,ADO,ADO出生年,ADO性别,ADI,ADR,ALA,ASY,吸烟,出生年,婚姻状况,籍贯,性别,饮酒,现住址,出生年RID,地域");
+        fillExcelTitle(sheet1,"医院,科室,患者（PID）,住院信息表,ADO,ADO出生年,ADO性别,ADI,ADR,ALA,ASY,吸烟,出生年,婚姻状况,籍贯,性别,饮酒,现住址,出生年RID,地域,记录时间");
         fillExcelTitle(sheet2,"移出步骤,PID");
         int RowNum1=1,RowNum2=1;
 
@@ -134,6 +135,7 @@ public class PIDIdentity_table {
                 }
                 row1.createCell(19).setCellValue(strAddress);
 
+
             } else
             {
                 row1.createCell(4).setCellValue("N");
@@ -159,7 +161,14 @@ public class PIDIdentity_table {
                 row1.createCell(10).setCellValue("N");
                 flag=false;
             }
-
+            if(getPIDRecordTime(dbp,BaseInfo_Title_ListValue_DBCondition.ADO13,map.getKey()).equals("N"))
+            {
+                row1.createCell(20).setCellValue("N");
+                Row row2 =sheet2.createRow(RowNum2++);
+                row2.createCell(0).setCellValue("记录时间异常");
+                row2.createCell(1).setCellValue(map.getKey());
+                flag=true;
+            }
             if(!flag)
             {
                 Row row2 =sheet2.createRow(RowNum2++);
@@ -169,6 +178,37 @@ public class PIDIdentity_table {
         }
         System.out.println(RowNum1+":"+RowNum2);
 
+    }
+
+    private static String getPIDRecordTime(MongoDatabase dbp,String condition,String strPid)
+    {
+        MongoCollection<Document> mongoCollection=dbp.getCollection("ARB");
+        Document dConditon=Document.parse("{"+condition+",'PID':'"+strPid+"'}");
+        MongoCursor<Document>  mc =mongoCollection.find(dConditon).projection(Document.parse("{'记录时间戳':1,'_id':0}")).iterator();
+        while (mc.hasNext())
+        {
+            Document document = mc.next();
+            String strTime= document.getString("记录时间戳");
+            if(judgeTime(strTime).equals("N"))
+                return "N";
+        }
+        return "";
+    }
+    private static String judgeTime(String strTime)
+    {
+        if(strTime == null || strTime.equals("") ||strTime.length()<10)
+            return "N";
+        strTime = strTime.substring(0,4);
+        try {
+            int recordYear= Integer.valueOf(strTime).intValue();
+            int nowYear= Calendar.getInstance().get(Calendar.YEAR);
+            if(recordYear < 1900 ||recordYear > nowYear)
+                return "N";
+        }catch (Exception e)
+        {
+            return "N";
+        }
+        return "";
     }
     private static void getTotalMap(Map<String,Map<String,Object>> mapTotal,Map<String, Document> mapADO,Map<String, String>  mapZhuYuan,Map<String, String> mapADI,
                                Map<String, String> mapADR,Map<String, String> mapALA,Map<String, String> mapASY)
