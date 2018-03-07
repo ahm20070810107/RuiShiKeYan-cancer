@@ -16,8 +16,6 @@ import test.java.task_SLE_LangChuang.BaseInfo_Title_ListValue_DBCondition;
  */
 
 
-
-
 public class ExportShouZhenTable {
 
     public static  void main(String[] args) throws Exception

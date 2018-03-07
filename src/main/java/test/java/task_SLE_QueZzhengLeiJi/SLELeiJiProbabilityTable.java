@@ -19,6 +19,9 @@ import java.util.Set;
  * Date:2017/12/13
  * Time:下午5:09
  */
+
+
+//SLE累及概率表
 public class SLELeiJiProbabilityTable {
    static Set<String> setSubItem= new HashSet<String>();
    static Set<String> setSystemItem= new HashSet<String>();

@@ -29,7 +29,8 @@ import java.util.Map;
 //用药相关性分析表-分析3-d
 public class ExportYYRelatedTable_analysis3 extends RuiShiKeYan implements IruiShiKeYan {
 
-    private String[] strYYGroup={"英夫利西单抗","益赛普","甲氨蝶呤","来氟米特"};
+//    private String[] strYYGroup={"英夫利西单抗","益赛普","甲氨蝶呤","来氟米特"};
+private String[] strYYGroup={"吗替麦考酚酯","艾拉莫德"};
     private  Map<String,ArrayList<String>> mapLeiJiSubFenZu;
     private    Map<String,Document> mapYY ;
     private    Map<String,Document> mapYYOne;

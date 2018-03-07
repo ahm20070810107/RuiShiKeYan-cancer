@@ -85,7 +85,7 @@ public class ExportRALeiJiTable extends RuiShiKeYan  implements IruiShiKeYan{
 
     private void writeADRToExcel()
     {
-        String title=publicTitle+",生产状况RID记录时间天,用药子项,用药系统项,用药时间天,用药RID";
+        String title=publicTitle+",生产状况RID记录时间天,用药子项,用药系统项,用药时间天,用药RID,用药年份,出生年,用药年龄";
         SaveExcelTool saveExcelTool=new SaveExcelTool();
         SXSSFSheet sheet= saveExcelTool.getSheet("");
         saveExcelTool.fillExcelTitle(title);
@@ -93,12 +93,14 @@ public class ExportRALeiJiTable extends RuiShiKeYan  implements IruiShiKeYan{
         for(Map.Entry<String,JSONObject> mappid:mapPId.entrySet())
         {
             JSONObject jsonBasic=mappid.getValue();
-            String strShouZhenTime=jsonBasic.getString("诊断时间天");
-            String strSYRIDTime=getJSonValue(jsonBasic,"生产状况RID记录时间天");
-            if(strSYRIDTime.equals("") ||strSYRIDTime.compareTo(strShouZhenTime)<= 0 )
-            {
-                strSYRIDTime="";
-            }
+
+            // 3/7去掉时间限制
+//            String strShouZhenTime=jsonBasic.getString("诊断时间天");
+            String strSYRIDTime="";//getJSonValue(jsonBasic,"生产状况RID记录时间天");
+//            if(strSYRIDTime.equals("") ||strSYRIDTime.compareTo(strShouZhenTime)<= 0 )
+//            {
+//                strSYRIDTime="";
+//            }
             for(Map.Entry<String,ArrayList<String>> mapTable:mapADRSubItem.entrySet()) {
 
                 JSONObject jsonObject = getEntityFirstTime(mappid.getKey(), mapYY, mapTable.getValue(),strSYRIDTime);
@@ -114,6 +116,20 @@ public class ExportRALeiJiTable extends RuiShiKeYan  implements IruiShiKeYan{
                 row.createCell(cell++).setCellValue(mapSubAndSysMapping.get(mapTable.getKey()));
                 row.createCell(cell++).setCellValue(getJSonValue(jsonObject, "firstTime"));
                 row.createCell(cell++).setCellValue(getJSonValue(jsonObject, "RID"));
+                try
+                {
+                    String yyYear=getJSonValue(jsonObject, "firstTime").substring(0,4);
+                    String birthYear=getJSonValue(jsonBasic,"出生年");
+                    Integer yyAge=Integer.valueOf(yyYear)-Integer.valueOf(birthYear);
+                    row.createCell(cell++).setCellValue(yyYear);
+                    row.createCell(cell++).setCellValue(birthYear);
+                    row.createCell(cell++).setCellValue(yyAge);
+
+
+                }catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
             }
         }
 

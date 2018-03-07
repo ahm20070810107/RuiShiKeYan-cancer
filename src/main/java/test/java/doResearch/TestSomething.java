@@ -24,8 +24,10 @@ public class TestSomething {
        String aa="";
 
 
-
-       System.out.print("4018".compareTo(aa));
+       while (true) {
+           System.out.print("4018".compareTo(aa));
+           System.out.print("11");
+       }
     }
 
 

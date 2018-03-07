@@ -10,7 +10,8 @@ import org.bson.Document
 import test.java.task_SLE_LangChuang.BaseInfo_Title_ListValue_DBCondition
 import java.util.*
 
-
+//实体表型数统计结果
+//入组实体数统计
 var ADR = "{"+BaseInfo_Title_ListValue_DBCondition.ADR13 +"}"
 var ADO = "{"+BaseInfo_Title_ListValue_DBCondition.ADO13 +"}"
 var ASY ="{"+BaseInfo_Title_ListValue_DBCondition.ZZTZ13SLE +"}"

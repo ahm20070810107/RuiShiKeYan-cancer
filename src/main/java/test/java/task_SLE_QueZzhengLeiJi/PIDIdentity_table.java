@@ -14,10 +14,7 @@ import org.bson.Document;
 import test.java.task_SLE_LangChuang.BaseInfo_Title_ListValue_DBCondition;
 
 import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA
@@ -29,22 +26,43 @@ public class PIDIdentity_table {
 
     static Map<String, String> mapHospital= new HashMap<String, String>();
     static Map<String,String> mapHospitalPro=new HashMap<String, String>();
+    static Map<String,String> mapBirthPIDRID=new HashMap<String, String>();
+    static Set<String> setExceptRid;
+    static {
+        setExceptRid = new HashSet<String>();
+        String strRID="e44acebd0e5e315461e02528daabd282,04a77803-0eaf-43e2-85e6-80b074fe14d8," +
+                "582edab73aa4a43ebae88145,15f4c02e-29f9-4c77-84ff-b4cfaf1525f0,0cc72749c078c5e345c7b0df00630acd,b70ef50fc5f57057985b54425e7e9803,9caf24c7df693a4c16a6c72db26d935e,9870059f-ae01-4a54-9194-8892ffb90523,0bc49f33-45c5-43c5-ba55-287774388e6f,5ad5c31b-bd7f-406f-946a-6bd57ae85805";
+        String[] str =strRID.split(",");
+        for (int i = 0; i < str.length; i++) {
+            setExceptRid.add(str[i]);
+        }
+    }
     public static void main(String[] args) throws Exception {
         MongoDBHelper mongoDBHelper= new MongoDBHelper("HDP-live");
         MongoDatabase dbp=mongoDBHelper.getDb();
 
-        MongoDBHelper mongoDBHelper1= new MongoDBHelper("HRS-live");
-        MongoDatabase dbh=mongoDBHelper1.getDb();
+//        MongoDBHelper mongoDBHelper1= new MongoDBHelper("HRS-live");
+//        MongoDatabase dbh=mongoDBHelper1.getDb();
+        getBirthInfo(mapBirthPIDRID,dbp);
         getHospitalInfo(mapHospitalPro);
-        getExcel(dbp,dbh);
+        getExcel(dbp);
         mongoDBHelper.closeMongoDb();
-        mongoDBHelper1.closeMongoDb();
+//        mongoDBHelper1.closeMongoDb();
     }
-
-    private static void getExcel(MongoDatabase dbp,MongoDatabase dbh) throws Exception
+    private static void getBirthInfo(Map<String,String> mapBirthPIDRID,MongoDatabase dbp)
+    {
+        MongoCollection mc= dbp.getCollection("ABH");
+        MongoCursor<Document> mcursor=mc.find(Document.parse("{"+BaseInfo_Title_ListValue_DBCondition.BH13SLE+"}")).projection(Document.parse("{'RID':1,'PID':1,'_id':0}")).iterator();
+        while (mcursor.hasNext())
+        {
+            Document document= mcursor.next();
+            mapBirthPIDRID.put(document.getString("PID"),document.getString("RID"));
+        }
+    }
+    private static void getExcel(MongoDatabase dbp) throws Exception
     {
         Map<String, Document> mapADO=getADO(dbp);
-        Map<String, String>  mapZhuYuan=getZhuYuanXin(dbh);
+      //  Map<String, String>  mapZhuYuan=getZhuYuanXin(dbh);
         Map<String, String> mapADI=getADI(dbp);
         Map<String, String> mapADR=getADR(dbp);
         Map<String, String> mapALA=getALA(dbp);
@@ -56,7 +74,7 @@ public class PIDIdentity_table {
 
         SXSSFWorkbook sxssfWorkbook2 = new SXSSFWorkbook(2000);
         SXSSFSheet sheet2 = sxssfWorkbook2.createSheet();
-        getTotalMap(mapTotal,mapADO,mapZhuYuan,mapADI,mapADR,mapALA,mapASY);
+        getTotalMap(mapTotal,mapADO,mapADI,mapADR,mapALA,mapASY);
         writeToExcel(dbp,mapTotal,sheet1,sheet2);
 
 
@@ -72,7 +90,7 @@ public class PIDIdentity_table {
     }
     private static void writeToExcel(MongoDatabase dbp, Map<String,Map<String,Object>> mapTotal ,SXSSFSheet sheet1,SXSSFSheet sheet2)
     {
-        fillExcelTitle(sheet1,"医院,科室,患者（PID）,住院信息表,ADO,ADO出生年,ADO性别,ADI,ADR,ALA,ASY,吸烟,出生年,婚姻状况,籍贯,性别,饮酒,现住址,出生年RID,地域,记录时间");
+        fillExcelTitle(sheet1,"医院,科室,患者（PID）,住院信息表,ADO,ADO出生年,ADO性别,ADI,ADR,ALA,ASY,吸烟,出生年,婚姻状况,籍贯,性别,饮酒,现住址,出生年RID,地域,记录时间,生产状况RID");
         fillExcelTitle(sheet2,"移出步骤,PID");
         int RowNum1=1,RowNum2=1;
 
@@ -84,13 +102,7 @@ public class PIDIdentity_table {
             row1.createCell(2).setCellValue(map.getKey());
 
             Map<String,Object> mapInfo = map.getValue();
-
-            if(mapInfo.get("zhuyuan") ==null)
-            {
-                 row1.createCell(3).setCellValue("N");
-                 flag=false;
-            }
-
+            row1.createCell(3).setCellValue("");
             if(mapInfo.get("ADO") !=null)
             {
                 Document dd=(Document) mapInfo.get("ADO");
@@ -117,14 +129,19 @@ public class PIDIdentity_table {
                     row1.createCell(15).setCellValue(dd.get("性别").toString());
                 if(dd.containsKey("饮酒"))
                     row1.createCell(16).setCellValue(dd.get("饮酒").toString());
-                if(dd.containsKey("现住址"))
-                    row1.createCell(17).setCellValue(dd.get("现住址").toString());
+                String strAddress="";
+                if(dd.containsKey("现住址")) {
+                    strAddress=dd.getString("现住址");
+                    if(strAddress ==null)
+                        strAddress="未提及";
+                    row1.createCell(17).setCellValue(strAddress);
+                }
                 if(dd.containsKey("出生年RID"))
                     row1.createCell(18).setCellValue(dd.get("出生年RID").toString());
-                String strAddress=dd.getString("现住址");
+
                 if(strAddress.equals("")||strAddress.equals("未提及"))
                 {
-                    if(!dd.getString("籍贯").equals("") &&!dd.getString("籍贯").equals("未提及"))
+                    if(dd.getString("籍贯")!=null&&!dd.getString("籍贯").equals("") &&!dd.getString("籍贯").equals("未提及"))
                     {
                         strAddress=dd.getString("籍贯");
                     }
@@ -169,6 +186,19 @@ public class PIDIdentity_table {
                 row2.createCell(1).setCellValue(map.getKey());
                 flag=true;
             }
+            //生产状况RID 的rid是否在指定的RID列表中
+            if(mapBirthPIDRID.get(map.getKey()) !=null)
+            {
+                String strRid=mapBirthPIDRID.get(map.getKey());
+                if(setExceptRid.contains(strRid))
+                {
+                    row1.createCell(21).setCellValue("N");
+                    Row row2 =sheet2.createRow(RowNum2++);
+                    row2.createCell(0).setCellValue("生产状况异常");
+                    row2.createCell(1).setCellValue(map.getKey());
+                    flag=true;
+                }
+            }
             if(!flag)
             {
                 Row row2 =sheet2.createRow(RowNum2++);
@@ -210,16 +240,9 @@ public class PIDIdentity_table {
         }
         return "";
     }
-    private static void getTotalMap(Map<String,Map<String,Object>> mapTotal,Map<String, Document> mapADO,Map<String, String>  mapZhuYuan,Map<String, String> mapADI,
+    private static void getTotalMap(Map<String,Map<String,Object>> mapTotal,Map<String, Document> mapADO, Map<String, String> mapADI,
                                Map<String, String> mapADR,Map<String, String> mapALA,Map<String, String> mapASY)
     {
-        for(Map.Entry<String, String> zhuyuan :mapZhuYuan.entrySet())
-        {
-                Map<String,Object> map =new HashMap<String,Object>();
-                map.put("zhuyuan","0");
-                mapTotal.put(zhuyuan.getKey(),map);
-        }
-
         for(Map.Entry<String, String> adi :mapADI.entrySet())
         {
             if(mapTotal.get(adi.getKey()) ==null)
@@ -298,21 +321,7 @@ public class PIDIdentity_table {
         }
 
     }
-    public static Map<String, String> getZhuYuanXin(MongoDatabase db) {
-        Map<String, String> map = new HashMap<String, String>();
-        MongoCollection<Document> mc = db.getCollection("Record");
-        ArrayList<Document> aggregates = new ArrayList<Document>();
-        aggregates.add(new Document("$match", Document.parse("{'odCategories':{$in:['RA']},'deleted':false,'status':'AMD识别完成','hospitalId':"+ BaseInfo_Title_ListValue_DBCondition.YiYuan13+", 'recordType':{'$in': ['出院记录', '入院记录']}}")));
-        aggregates.add(new Document("$group", Document.parse("{'_id':{'patientId':'$patientId'}}")));
-        MongoCursor<Document> cursor = mc.aggregate(aggregates).allowDiskUse(true).iterator();
 
-        while (cursor.hasNext()) {
-            Document dd = (Document) cursor.next().get("_id");
-            map.put(dd.getString("patientId"), "0");
-
-        }
-        return map;
-    }
     public static Map<String, String> getHospital(MongoDatabase db) {
         Map<String, String> map = new HashMap<String, String>();
         MongoCollection<Document> mc = db.getCollection("Hospital");
