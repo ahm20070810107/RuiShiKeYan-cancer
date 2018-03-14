@@ -422,7 +422,7 @@ public class ExportTables_SLE {
         SXSSFWorkbook sxssfWorkbook = new SXSSFWorkbook(2000);
         SXSSFSheet sheet = sxssfWorkbook.createSheet();
         fillExcelTitle(sheet,"表头,医院,科室,患者（PID）,性别,地域,病历（RID）,诊断锚点,上下文,诊断状态,标准诊断名_原,词尾词,标准诊断名,ICD-10主码,CD-10副码,部位,部位描绘,诊断修饰,诊断程度,诊断时间,时间状态,备注,诊断时间天,诊断时间年," +
-                "出生年取值RID,出生年,诊断时间年减去出生年,最晚记录时间天,病程天,生产状况RID,生产状况,生产状况分组,生产状况RID记录时间天");
+                "出生年取值RID,出生年,诊断时间年减去出生年,最晚记录时间天,病程天,生产状况RID,生产状况,生产状况分组,生产状况RID记录时间天,中心地域");
         MongoCollection<Document> mc = db.getCollection("ADI");
         Map<String,JSONObject> mapExceptPID = ExportQueZhenTable.fillExceptPID();
         Map<String,String> mapExceptZD=new HashMap<String, String>(); //存需要移除的PID
@@ -529,9 +529,9 @@ public class ExportTables_SLE {
                 else
                     row.createCell(31).setCellValue("生育组");
                 row.createCell(32).setCellValue(get10JSonValue(jsBHinfo,"记录时间戳"));
+
             }
-
-
+            row.createCell(33).setCellValue(objectBasic.getString("中心地域"));
         }
         FileOutputStream fileOutputStream = new FileOutputStream(LocalHostInfo.getPath()+"交付/首诊时间表.xlsx");
         sxssfWorkbook.write(fileOutputStream);
