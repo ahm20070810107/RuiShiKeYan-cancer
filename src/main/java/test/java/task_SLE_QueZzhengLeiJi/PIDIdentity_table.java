@@ -90,7 +90,7 @@ public class PIDIdentity_table {
     }
     private static void writeToExcel(MongoDatabase dbp, Map<String,Map<String,Object>> mapTotal ,SXSSFSheet sheet1,SXSSFSheet sheet2)
     {
-        fillExcelTitle(sheet1,"医院,科室,患者（PID）,住院信息表,ADO,ADO出生年,ADO性别,ADI,ADR,ALA,ASY,吸烟,出生年,婚姻状况,籍贯,性别,饮酒,现住址,出生年RID,地域,记录时间,生产状况RID");
+        fillExcelTitle(sheet1,"医院,科室,患者（PID）,住院信息表,ADO,ADO出生年,ADO性别,ADI,ADR,ALA,ASY,吸烟,出生年,婚姻状况,籍贯,性别,饮酒,现住址,出生年RID,地域,记录时间,生产状况RID,中心地域");
         fillExcelTitle(sheet2,"移出步骤,PID");
         int RowNum1=1,RowNum2=1;
 
@@ -146,12 +146,16 @@ public class PIDIdentity_table {
                         strAddress=dd.getString("籍贯");
                     }
                 }
+                String hosProvice=mapHospitalPro.get(mapHospital.get(dd.getString("hospitalId")));
+                if(hosProvice ==null)
+                    hosProvice="";
                 if(strAddress.equals("未提及"))
                 {
-                     strAddress=mapHospitalPro.get(mapHospital.get(dd.getString("hospitalId")));
+                     strAddress=hosProvice;
                 }
                 row1.createCell(19).setCellValue(strAddress);
 
+                row1.createCell(22).setCellValue(hosProvice);
 
             } else
             {
