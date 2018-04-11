@@ -255,7 +255,7 @@ public class ExportRALeiJiTable extends RuiShiKeYan  implements IruiShiKeYan{
         ArrayList<Document> aggregates = new ArrayList<Document>();
         String strZDCondition="{"+BaseInfo_Title_ListValue_DBCondition.ADR13+strConditon+",'用药时间':{$exists:true,$regex:/^.{10,}$/},'是否使用':'使用','通用名':{$ne:'',$exists:true}}";
         aggregates.add(new Document("$match",Document.parse(strZDCondition)));
-        aggregates.add(new Document("$project",Document.parse("{'用药时间':'$用药时间','通用名':'$通用名','PID':'$PID','RID','$RID'")));//,'段落标题':'$段落标题'
+        aggregates.add(new Document("$project",Document.parse("{'用药时间':'$用药时间','通用名':'$通用名','PID':'$PID','RID':'$RID'}")));//,'段落标题':'$段落标题'
       //  aggregates.add(new Document("$sort",Document.parse("{'用药时间':1}")));
         aggregates.add(new Document("$group",Document.parse("{'_id':{'PID':'$PID','通用名':'$通用名'}, 'result':{'$push':'$$ROOT'}}")));
         MongoCursor<Document> cursor =mc.aggregate(aggregates).allowDiskUse(true).iterator();
@@ -285,7 +285,7 @@ public class ExportRALeiJiTable extends RuiShiKeYan  implements IruiShiKeYan{
             if(tempZiXiang.equals("")||tempZiXiang.toUpperCase().equals("N"))
                 continue;
 
-            if(getJSonValue(document,"表型").equals("标准诊断名") &&!tempZiXiang.equals("类风湿性关节炎"))
+            if(getJSonValue(document,"表型").equals("标准诊断名") &&!tempZiXiang.equals("胰腺恶性肿瘤"))
             {
                 ArrayList<String> arrayList=mapADISubItem.get(tempZiXiang);
                 if(arrayList ==null) {
@@ -305,25 +305,7 @@ public class ExportRALeiJiTable extends RuiShiKeYan  implements IruiShiKeYan{
                 arrayList.add(getJSonValue(document,"表型名称") +getJSonValue(document,"标准标本"));
 
             }
-
-
         }
     }
-
-
-//
-//    private void getBirthDetail(MongoDatabase mdb,Map<String,JSONObject> mapBHInfo)
-//    {
-//        MongoCollection<Document> dc=mdb.getCollection("ABH");
-//        MongoCursor<Document> mongoCursor=dc.find(Document.parse("{"+ BaseInfo_Title_ListValue_DBCondition.BH13SLE+"}")).iterator();
-//        while (mongoCursor.hasNext())
-//        {
-//             Document dd=mongoCursor.next();
-//             JSONObject jsonObject=new JSONObject();
-//             jsonObject.put("生产状况",getJSonValue(dd,"生产状况"));
-//              mapBHInfo.put(getJSonValue(dd,"PID"),jsonObject);
-//        }
-//
-//    }
 
 }

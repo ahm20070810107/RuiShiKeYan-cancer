@@ -6,6 +6,9 @@ import com.RuiShiKeYan.Common.Method.FileHelper;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 /**
  * Created with IntelliJ IDEA
@@ -21,13 +24,15 @@ public class TestSomething {
        JSONObject obj= JSON.parseObject(filestr);
        System.out.print(obj.getString("hello"));
 
-       String aa="";
+        Map<String ,String> map = new HashMap<String, String>();
+
+        map.put("","12341");
 
 
-       while (true) {
-           System.out.print("4018".compareTo(aa));
-           System.out.print("11");
-       }
+        for(Map.Entry<String,String> map1:map.entrySet())
+        {
+            System.out.println(map1.getKey());
+        }
     }
 
 

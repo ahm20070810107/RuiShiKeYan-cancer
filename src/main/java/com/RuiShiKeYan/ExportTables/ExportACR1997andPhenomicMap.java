@@ -50,7 +50,7 @@ public class ExportACR1997andPhenomicMap extends RuiShiKeYan implements IruiShiK
     {
         try {
         String flag=(String) args[0];
-        String strZDCondition = "{'诊断时间':{$exists:true,$regex:/^.{9,}$/},'标准诊断名':'类风湿性关节炎','诊断状态':'是'," + BaseInfo_Title_ListValue_DBCondition.ZD13SLE + "}";
+        String strZDCondition =BaseInfo_Title_ListValue_DBCondition.strSLEZDLCCondition;
 
         String fileName=LocalHostInfo.getPath()+ "交付/首诊时间表.xlsx";
         InitMongoDb();
@@ -334,7 +334,7 @@ public class ExportACR1997andPhenomicMap extends RuiShiKeYan implements IruiShiK
         int count=0;
         for (String strPid: setPid) {
           if(mapPIDPxFlag.get(strPid) !=null)
-            if(mapPIDPxFlag.get(strPid).get(pxRow)!=null &&(TaFlag||pxCloumn.equals("类风湿性关节炎")||mapPIDPxFlag.get(strPid).get(pxRow).equals("")||
+            if(mapPIDPxFlag.get(strPid).get(pxRow)!=null &&(TaFlag||pxCloumn.equals("胰腺恶性肿瘤")||mapPIDPxFlag.get(strPid).get(pxRow).equals("")||
               mapPIDPxFlag.get(strPid).get(pxCloumn).equals("")|| mapPIDPxFlag.get(strPid).get(pxRow).compareTo(mapPIDPxFlag.get(strPid).get(pxCloumn))<=0))
                 count++;
         }

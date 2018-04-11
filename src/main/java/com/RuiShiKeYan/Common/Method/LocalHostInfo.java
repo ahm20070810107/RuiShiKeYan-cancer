@@ -13,8 +13,8 @@ import java.io.File;
  */
 public class LocalHostInfo {
 
-   static String Pathlocal="../../Desktop/tempExcel-ra/";
-   static String PathHost="/data/dax_backup/current_dax_home/home/睿识科研/huangming/tempExcel-ra/";
+   static String Pathlocal="../../Desktop/tempExcel-changhai/";
+   static String PathHost="/data/dax_backup/current_dax_home/home/睿识科研/huangming/tempExcel-changhai/";
   // static String PathHost="/data/hitales/huangming/Result/";
 
    static boolean isLocal=false;

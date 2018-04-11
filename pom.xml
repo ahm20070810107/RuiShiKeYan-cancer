@@ -4,10 +4,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>RuiShiKeYan-13RA</groupId>
-    <artifactId>RuiShiKeYan-13RA</artifactId>
-    <version>1.4-SNAPSHOT</version>
-    <name>RuiShiKeYan-13RA</name>
+    <groupId>RuiShiKeYan-cancer</groupId>
+    <artifactId>RuiShiKeYan-cancer</artifactId>
+    <version>1.004</version>
+    <name>RuiShiKeYan-cancer</name>
     <url>http://maven.apache.org</url>
 
     <properties>

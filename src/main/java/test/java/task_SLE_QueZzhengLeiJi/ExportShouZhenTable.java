@@ -34,7 +34,7 @@ public class ExportShouZhenTable {
         String strALAConditon="{"+BaseInfo_Title_ListValue_DBCondition.HY13SLE+",'化验时间':{$exists:true,$regex:/^.{10,}$/},'化验结果定性（新）':'阳性'}";
         String strZZCondition="{"+BaseInfo_Title_ListValue_DBCondition.ZZTZ13SLE+",'否定词':'','症状1':{$ne:null,$exists:true,$ne:''},'症状&体征时间':{$exists:true,$regex:/^.{10,}$/}}}";
         String strTZConditon="{"+BaseInfo_Title_ListValue_DBCondition.ZZTZ13SLE+",'$or':[{'体征':{$ne:''}},{'体征定性描述':{$ne:''}}],'症状&体征时间':{$exists:true,$regex:/^.{10,}$/}}}";
-        String strZDCondition="{'诊断时间':{$exists:true,$regex:/^.{9,}$/},'标准诊断名':'类风湿性关节炎','诊断状态':'是',"+BaseInfo_Title_ListValue_DBCondition.ZD13SLE+"}";
+        String strZDCondition=BaseInfo_Title_ListValue_DBCondition.strSLEZDLCCondition;
 
         ExportTables_SLE.getZDPID(db,strZDCondition);
         ExportTables_SLE.ExportADI(db, strZDCondition);

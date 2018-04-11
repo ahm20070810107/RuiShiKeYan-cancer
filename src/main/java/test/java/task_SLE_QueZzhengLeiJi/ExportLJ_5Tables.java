@@ -45,7 +45,7 @@ public class ExportLJ_5Tables {
         String strZZCondition="{"+BaseInfo_Title_ListValue_DBCondition.ZZTZ13SLE+",'否定词':'','症状1':{$exists:true,$ne:''}}";
         String strZDCondition="{'诊断状态':'是','标准诊断名':{$exists:true,$ne:''},"+BaseInfo_Title_ListValue_DBCondition.ZD13SLE+"}";
         String strTZCondition="{"+BaseInfo_Title_ListValue_DBCondition.ZZTZ13SLE+",'$or':[{'体征':{$ne:''}},{'体征定性描述':{$ne:''}}]  }";
-        String strALAConditon="{"+BaseInfo_Title_ListValue_DBCondition.HY13SLE+",'化验结果定性（新）':'阳性'}";//'化验结果定性（新）':'阳性'}";
+        String strALAConditon="{"+BaseInfo_Title_ListValue_DBCondition.HY13SLE+"}";//'化验结果定性（新）':'阳性'}";
         String strADRConditon="{'是否使用':'使用','通用名':{$exists:true,$ne:''},"+BaseInfo_Title_ListValue_DBCondition.ADR13+"}";//'用药时间':{$exists:true,$regex:/^.{10,}$/},
         exportZD(db,strZDCondition);
         exportZZ(db,strZZCondition);
@@ -205,7 +205,7 @@ public class ExportLJ_5Tables {
         }
     }
 
-    private static void exportZD(MongoDatabase db,String strZDCondition) throws Exception
+    private static void exportZD(MongoDatabase db,String strZDCondition)
     {
         MongoCollection<Document> mc = db.getCollection("ADI");
         MongoCursor<Document> cursor = mc.find(Document.parse(strZDCondition)).iterator();
@@ -215,15 +215,15 @@ public class ExportLJ_5Tables {
             dd=cursor.next();
             if(mapExceptPID.containsKey(dd.getString("PID")))
                 continue;
-
-           if(!mapZD.containsKey(dd.getString("标准诊断名")))
+           String tempStr=dd.getString("标准诊断名")+dd.getString("诊断状态")+dd.getString("诊断程度")+dd.getString("诊断修饰");
+           if(!mapZD.containsKey(tempStr))
            {
-               mapZD.put(dd.getString("标准诊断名"),1);
+               mapZD.put(tempStr,1);
            }
            else
            {
-               Integer pc = mapZD.get(dd.getString("标准诊断名"));
-               mapZD.put(dd.getString("标准诊断名"),pc+1);
+               Integer pc = mapZD.get(tempStr);
+               mapZD.put(tempStr,pc+1);
            }
         }
     }
@@ -239,8 +239,15 @@ public class ExportLJ_5Tables {
             if(mapExceptPID.containsKey(dd.getString("PID")))
                 continue;
 
-            String tempStr="";
-            tempStr=dd.getString("标准化验名")+"|"+dd.getString("标准标本");
+            String tempStr;
+            tempStr=dd.getString("化验名称");
+            if(tempStr.equals("")){
+                tempStr=dd.getString("化验组");
+                if(tempStr.equals("")){
+                    continue;
+                }
+            }
+            tempStr +="|"+dd.getString("标准标本");
             if(tempStr.equals("|"))
                 continue;
             if(!mapHY.containsKey(tempStr))
@@ -289,4 +296,5 @@ public class ExportLJ_5Tables {
 
         return  strArr;
     }
+
 }
